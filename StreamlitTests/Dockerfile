@@ -13,6 +13,9 @@ RUN apt-get update \
     python3-distutils \
     python3-venv \
     curl \
+    wget \
+    unzip \
+    gnupg \
     && rm -rf /var/lib/apt/lists/* \
     && cd /tmp \
     && curl -O https://bootstrap.pypa.io/get-pip.py \
@@ -34,25 +37,42 @@ RUN useradd -m model-server
 RUN pip install pip --upgrade
 RUN pip install -U pip setuptools
 
-# Move the current directory to the Docker image
-RUN mkdir /streamlit
-COPY . /streamlit
-WORKDIR /streamlit
+# Move the requirements.txt file to the Docker image
+RUN mkdir /tfserving
+COPY . /tfserving
+WORKDIR /tfserving
 
-# Install the requirements
+# Installs the TensorFlow Serving requirements
 RUN pip install -r requirements.txt
+RUN echo "deb [arch=amd64] http://storage.googleapis.com/tensorflow-serving-apt stable tensorflow-model-server tensorflow-model-server-universal" | tee /etc/apt/sources.list.d/tensorflow-serving.list && \
+curl https://storage.googleapis.com/tensorflow-serving-apt/tensorflow-serving.release.pub.gpg | apt-key add -
+RUN apt-get update && apt-get install tensorflow-model-server -y
 
-# Sets the proper rights to the created Python env
-RUN chown -R model-server /home/venv
+# Downloads the TensorFlow trained model
+RUN cd /home \
+    && wget -nv "https://www.dropbox.com/s/4l0efitsuvfoxhj/simpsonsnet.zip" \
+    && unzip simpsonsnet.zip \
+    && rm simpsonsnet.zip \
+    && mkdir /home/saved_models \
+    && mv simpsonsnet /home/saved_models/
 
+# Sets the proper rights to the /home/saved_models dir and the created Python env
+RUN chown -R model-server /home/saved_models \
+    && chown -R model-server /home/venv
+    
 # Creates a directory for the logs and sets permissions to it
 RUN mkdir /home/logs \
     && chown -R model-server /home/logs
 
-# Expose the UI port (8502)
-ENV UI_PORT=8502
-EXPOSE $UI_PORT
+# Defines the model_path environment variable and the model name
+ENV MODEL_PATH=/home/saved_models/simpsonsnet
+ENV MODEL_NAME=simpsonsnet
+
+# Expose the ports 8500 (gRPC) and 8501 (REST)
+ENV GRPC_PORT=8500
+ENV REST_PORT=8501
+EXPOSE $GRPC_PORT $REST_PORT
 
 # Prepare the CMD that will be run on docker run
 USER model-server
-CMD streamlit run ui.py --server.port=$UI_PORT >> /home/logs/ui.log
+CMD tensorflow_model_server --port=$GRPC_PORT --rest_api_port=$REST_PORT --model_name=$MODEL_NAME --model_base_path=$MODEL_PATH >> /home/logs/server.log
