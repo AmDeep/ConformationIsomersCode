@@ -1,58 +1,27 @@
-# TensorFlow Serving + Streamlit! :sparkles::framed_picture:
+# Deployment-Machine-Learning-Model-with-Streamlit
+This repository is about how to deploy machine learning model with Streamlit.
 
-__Serve TensorFlow ML models with TF-Serving and then create a Streamlit UI to use them!__
 
-This is a pretty simple [Streamlit](https://www.streamlit.io/) UI to expose the functionality
-of a [TensorFlow](https://www.tensorflow.org/) image classification CNN served using 
-[TensorFlow Serving](https://www.tensorflow.org/tfx/guide/serving).
+![alt text](https://github.com/elsyifa/Deployment-Machine-Learning-Model-with-Streamlit/blob/master/Streamlit_logo.png)
 
-In this case, we will be serving the ML model developed at 
-[alvarobartt/serving-tensorflow-models](https://github.com/alvarobartt/serving-tensorflow-models), which
-is an image classification CNN to classify images from 
-[The Simpsons Characters](https://www.kaggle.com/alexattia/the-simpsons-characters-dataset).
+Streamlit is open source python library to build beautiful custom web-app for machine learning and data science. So, it python library and need to be installed for the first time.
+Below, steps to deploy ML model with Streamlit:
 
----
+a. Install streamlit.
+  
+  ###### pip install streamlit
+  
+  
+b. Create script in python that you want to run and save it.
 
-## :tv: Demo
 
-![](ui-demo.gif)
+c. In the anaconda prompt enter to the folder where the script is saved.
 
----
+![alt text](https://github.com/elsyifa/Deployment-Machine-Learning-Model-with-Streamlit/blob/master/path.png)
 
-## :whale2: Deployment
 
-In order to deploy the presented application, you will need to use [Docker Compose](https://docs.docker.com/compose/),
-which means that you will also need to have [Docker](https://www.docker.com/) installed.
+d. Issue the this command.
 
-We will deploy the following Docker Containers:
-
-- `src/tfserving`: contains the TF-Serving API deployment.
-- `src/streamlit`: contains the code of the UI connected to the deployed API.
-
-That said, you can easily deploy them with Docker Compose. So we will start off 
-with the initial step which is __building the containers__, with the following command:
-
-```
-docker-compose build --force-rm
-```
-
-__Note__: we use `--force-rm` so as to force the removal of the intermediate Docker containers.
-
-Once built, we can proceed to __deploy the containers__ with the following command:
-
-```
-docker-compose up
-```
-
-Finally, whenever you want to __stop the containers__ you can use the following command:
-
-```
-docker-compose stop
-```
-
-And additionally, you can also __remove the containers__ once you don't need them anymore with 
-the following command:
-
-```
-docker-compose rm
-```
+  ###### steamlit run script_pyton.py
+  
+  ![alt text](https://github.com/elsyifa/Deployment-Machine-Learning-Model-with-Streamlit/blob/master/streamlit_run.png)
